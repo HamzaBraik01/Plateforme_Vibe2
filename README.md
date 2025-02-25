@@ -12,7 +12,6 @@
 <p align="center">
   <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-10.x-red" alt="Laravel 10.x"></a>
   <a href="https://www.postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-16-blue" alt="PostgreSQL"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/Licence-MIT-green" alt="MIT License"></a>
 </p>
 
 ---
@@ -53,7 +52,7 @@ Suivez ces étapes pour configurer le projet localement :
 
 1. **📋 Cloner le dépôt**
    ```bash
-   git clone https://github.com/votre-utilisateur/vibe.git
+   git clone https://github.com/HamzaBraik01/Plateforme_Vibe2.git
    cd vibe
    ```
 
