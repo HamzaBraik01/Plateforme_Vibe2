@@ -51,7 +51,8 @@
                 <img src="{{ $post->user->avatar_url }}"
                     class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                 <div>
-                    <a href="#" class="font-semibold text-gray-900 hover:text-blue-600">{{ $post->user->name }}</a>
+                    <a href="{{ route('friends.show', $post->user->id) }}"
+                        class="font-semibold text-gray-900 hover:text-blue-600">{{ $post->user->name }}</a>
                     <div class="text-sm text-gray-500">{{ $post->created_at->diffForHumans() }}</div>
                 </div>
             </div>
@@ -101,13 +102,13 @@
             <form action="{{ route('posts.like', $post) }}" method="POST">
                 @csrf
                 <button type="submit" class="flex items-center gap-2 text-gray-600 hover:text-blue-500 transition duration-200">
-                    <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933c-.248.304-.424.686-.424.967z"></path>
+                    <svg class="w-5 h-5 {{ $post->isLikedByUser(Auth::id()) ? 'text-blue-500 fill-current' : '' }}"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 4h4m12 0V4m0 4h-4M4 20v-8h4m12 0v8h-4m-8-12v12"></path>
                     </svg>
                     J'aime
                 </button>
             </form>
-
 
             <!-- Bouton Commenter -->
             <button type="button" class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition duration-200">
@@ -125,7 +126,8 @@
                 <img src="{{ $commentaire->user->avatar_url }}"
                     class="w-10 h-10 rounded-full object-cover border-2 border-gray-200">
                 <div class="bg-gray-100 rounded-lg p-3 flex-1">
-                    <a href="#" class="font-semibold text-gray-900 hover:text-blue-600">{{ $commentaire->user->name }}</a>
+                    <a href="{{ route('friends.show', $commentaire->user->id) }}"
+                        class="font-semibold text-gray-900 hover:text-blue-600">{{ $commentaire->user->name }}</a>
                     <p class="text-gray-800 text-sm">{{ $commentaire->content }}</p>
                     <span class="text-xs text-gray-500">{{ $commentaire->created_at->diffForHumans() }}</span>
                 </div>
@@ -141,11 +143,11 @@
                     class="w-10 h-10 rounded-full object-cover border-2 border-gray-200">
                 <div class="flex-1">
                     <input type="text" name="content"
-                        class="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder-gray-400"
-                        placeholder="Écrire un commentaire...">
+                            class="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder-gray-400"
+                            placeholder="Écrire un commentaire...">
                     @error('content')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @enderror
+                    @endforelse
                 </div>
                 <button type="submit" class="text-blue-600 hover:text-blue-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

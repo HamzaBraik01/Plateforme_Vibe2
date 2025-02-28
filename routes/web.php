@@ -23,6 +23,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/friends/{id}/accept', [FriendController::class, 'acceptRequest'])->name('friends.accept');
     Route::delete('/friends/{id}/reject', [FriendController::class, 'rejectRequest'])->name('friends.reject');
     Route::delete('/friends/{friend_id}/remove', [FriendController::class, 'removeFriend'])->name('friends.remove');
+    Route::delete('/friends/{receiver_id}/cancel', [FriendController::class, 'cancelRequest'])->name('friends.cancel');
+    Route::get('/friends/{id}', [FriendController::class, 'show'])->name('friends.show'); // Nouvelle route
 
     Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');

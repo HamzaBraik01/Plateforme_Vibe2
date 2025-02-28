@@ -18,8 +18,8 @@
     <div class="mb-8">
         <form method="GET" class="flex items-center gap-3">
             <input type="text" name="search" value="{{ $search }}"
-                class="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm placeholder-gray-400"
-                placeholder="Rechercher des amis par nom, email ou pseudo...">
+                   class="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm placeholder-gray-400"
+                   placeholder="Rechercher des amis par nom, email ou pseudo...">
             <button type="submit"
                     class="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition duration-200 shadow-md">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -38,9 +38,10 @@
             <div class="flex items-center justify-between py-4 border-b last:border-b-0">
                 <div class="flex items-center gap-4">
                     <img src="{{ $request->sender->avatar_url }}"
-                        class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
+                         class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                     <div>
-                        <a href="#" class="font-semibold text-gray-900 hover:text-blue-600">{{ $request->sender->name }}</a>
+                        <a href="{{ route('friends.show', $request->sender->id) }}"
+                           class="font-semibold text-gray-900 hover:text-blue-600">{{ $request->sender->name }}</a>
                         <div class="text-sm text-gray-600">@ {{ $request->sender->pseudo }}</div>
                         @if ($request->sender->mutualFriendsCount() > 0)
                             <div class="text-xs text-gray-500">{{ $request->sender->mutualFriendsCount() }} ami(s) en commun</div>
@@ -75,9 +76,10 @@
             <div class="flex items-center justify-between py-4 border-b last:border-b-0">
                 <div class="flex items-center gap-4">
                     <img src="{{ $friend->avatar_url }}"
-                        class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
+                         class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                     <div>
-                        <a href="#" class="font-semibold text-gray-900 hover:text-blue-600">{{ $friend->name }}</a>
+                        <a href="{{ route('friends.show', $friend->id) }}"
+                           class="font-semibold text-gray-900 hover:text-blue-600">{{ $friend->name }}</a>
                         <div class="text-sm text-gray-600">@ {{ $friend->pseudo }}</div>
                         @if ($friend->isOnline())
                             <div class="text-xs text-green-500 flex items-center">
@@ -106,15 +108,29 @@
             <div class="flex items-center justify-between py-4 border-b last:border-b-0">
                 <div class="flex items-center gap-4">
                     <img src="{{ $user->avatar_url }}"
-                        class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
+                         class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                     <div>
-                        <a href="#" class="font-semibold text-gray-900 hover:text-blue-600">{{ $user->name }}</a>
+                        <a href="{{ route('friends.show', $user->id) }}"
+                           class="font-semibold text-gray-900 hover:text-blue-600">{{ $user->name }}</a>
                         <div class="text-sm text-gray-600">@ {{ $user->pseudo }}</div>
                         @if ($user->mutualFriendsCount() > 0)
                             <div class="text-xs text-gray-500">{{ $user->mutualFriendsCount() }} ami(s) en commun</div>
                         @endif
                     </div>
                 </div>
+                @if (!Auth::user()->isFriendWith($user->id))
+                @if (Auth::user()->hasPendingRequestTo($user->id))
+                <form action="{{ route('friends.cancel', $user->id) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button class="bg-gray-200 text-gray-700 px-4 py-1 rounded-full hover:bg-gray-300 transition duration-200 text-sm font-medium flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Annuler
+                    </button>
+                </form>
+                @else
                 <form action="{{ route('friends.request', $user->id) }}" method="POST">
                     @csrf
                     <button class="bg-blue-600 text-white px-4 py-1 rounded-full hover:bg-blue-700 transition duration-200 text-sm font-medium flex items-center gap-1">
@@ -124,6 +140,8 @@
                         Ajouter
                     </button>
                 </form>
+                @endif
+                @endif
             </div>
             @empty
             <p class="text-gray-500 text-center py-4">Aucun utilisateur trouvé</p>

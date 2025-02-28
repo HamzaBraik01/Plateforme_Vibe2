@@ -14,16 +14,11 @@ class FriendController extends Controller
         $search = $request->input('search');
         $user = Auth::user();
 
-        // Liste des amis actuels
         $friends = $user->friends()->get();
-
-        // Demandes d'amis reçues en attente
         $friendRequests = Demande::where('receiver_id', $user->id)
             ->pending()
             ->with('sender')
             ->get();
-
-        // Suggestions d'utilisateurs (exclut les amis actuels et soi-même)
         $users = User::when($search, function ($query, $search) {
             return $query->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
@@ -92,10 +87,10 @@ class FriendController extends Controller
 
         $friendship = Demande::where(function ($query) use ($user, $friend_id) {
             $query->where('user_id', $user->id)
-                  ->where('receiver_id', $friend_id);
+                ->where('receiver_id', $friend_id);
         })->orWhere(function ($query) use ($user, $friend_id) {
             $query->where('user_id', $friend_id)
-                  ->where('receiver_id', $user->id);
+                ->where('receiver_id', $user->id);
         })->accepted()->first();
 
         if ($friendship) {
@@ -104,5 +99,38 @@ class FriendController extends Controller
         }
 
         return redirect()->back()->with('error', 'Aucune amitié trouvée à supprimer.');
+    }
+
+    // Nouvelle méthode pour annuler une demande
+    public function cancelRequest($receiver_id)
+    {
+        $user = Auth::user();
+        $request = Demande::where('user_id', $user->id)
+            ->where('receiver_id', $receiver_id)
+            ->where('statut', Demande::STATUT_PENDING)
+            ->first();
+
+        if ($request) {
+            $request->delete();
+            return redirect()->back()->with('success', 'Demande d\'ami annulée avec succès.');
+        }
+
+        return redirect()->back()->with('error', 'Aucune demande en attente à annuler.');
+    }
+
+    public function show($id)
+    {
+        $profileUser = User::with([
+            'posts' => function ($query) {
+                $query->orderBy('created_at', 'desc')->with('commentaires.user', 'likes');
+            },
+            'likes.post' => function ($query) {
+                $query->with('user', 'commentaires.user', 'likes');
+            },
+            'commentaires.post' => function ($query) {
+                $query->with('user', 'commentaires.user', 'likes');
+            }
+        ])->findOrFail($id);
+        return view('friends.show', compact('profileUser'));
     }
 }
