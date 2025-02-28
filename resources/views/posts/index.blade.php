@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Messages -->
+    <!-- Messages de notification -->
     @if (session('success'))
         <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-r-lg">
             {{ session('success') }}
@@ -15,15 +15,15 @@
     @endif
 
     <!-- Formulaire de nouvelle publication -->
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
         <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="flex items-start gap-4">
                 <img src="{{ Auth::user()->avatar_url }}" class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                 <div class="flex-1">
                     <textarea name="content" rows="3"
-                            class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder-gray-400 resize-none"
-                            placeholder="Quoi de neuf, {{ Auth::user()->name }} ?"></textarea>
+                              class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder-gray-400 resize-none"
+                              placeholder="Quoi de neuf, {{ Auth::user()->name }} ?"></textarea>
                     @error('content')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -31,7 +31,7 @@
             </div>
             <div class="mt-4 flex items-center justify-between">
                 <input type="file" name="photo"
-                    class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                       class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                 <button type="submit"
                         class="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition duration-200">
                     Publier
@@ -43,19 +43,20 @@
         </form>
     </div>
 
-    <!-- Liste des publications -->
+    <!-- Liste des publications (amis acceptés + moi) -->
     @forelse($posts as $post)
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-4">
                 <img src="{{ $post->user->avatar_url }}"
-                    class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
+                     class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                 <div>
                     <a href="{{ route('friends.show', $post->user->id) }}"
-                        class="font-semibold text-gray-900 hover:text-blue-600">{{ $post->user->name }}</a>
+                       class="font-semibold text-gray-900 hover:text-blue-600">{{ $post->user->name }}</a>
                     <div class="text-sm text-gray-500">{{ $post->created_at->diffForHumans() }}</div>
                 </div>
             </div>
+            <!-- Menu déroulant pour modifier/supprimer la publication (seulement si c'est mon post) -->
             @if ($post->user_id === Auth::id())
             <div x-data="{ open: false }" class="relative">
                 <button @click="open = !open" class="text-gray-500 hover:text-gray-700">
@@ -64,13 +65,23 @@
                     </svg>
                 </button>
                 <div x-show="open" @click.away="open = false"
-                    class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-10">
+                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-10 border border-gray-100">
+                    <!-- Icône crayon pour modifier le post -->
                     <a href="{{ route('posts.edit', $post) }}"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Modifier</a>
+                       class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Modifier
+                    </a>
+                    <!-- Icône poubelle pour supprimer le post -->
                     <form action="{{ route('posts.destroy', $post) }}" method="POST" onsubmit="return confirm('Voulez-vous vraiment supprimer cette publication ?');">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                        <button type="submit" class="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v1H9V4a1 1 0 011-1zm-5 4h14"></path>
+                            </svg>
                             Supprimer
                         </button>
                     </form>
@@ -97,21 +108,23 @@
         </div>
 
         <!-- Boutons Like et Commenter -->
-        <div class="flex items-center gap-4 mb-4">
-            <!-- Bouton J'aime -->
+        <div class="flex items-center gap-4 mb-4 border-t pt-2">
+            <!-- Bouton J'aime avec vérification si déjà liké -->
             <form action="{{ route('posts.like', $post) }}" method="POST">
                 @csrf
                 <button type="submit" class="flex items-center gap-2 text-gray-600 hover:text-blue-500 transition duration-200">
                     <svg class="w-5 h-5 {{ $post->isLikedByUser(Auth::id()) ? 'text-blue-500 fill-current' : '' }}"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 4h4m12 0V4m0 4h-4M4 20v-8h4m12 0v8h-4m-8-12v12"></path>
                     </svg>
                     J'aime
                 </button>
             </form>
 
-            <!-- Bouton Commenter -->
-            <button type="button" class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition duration-200">
+            <!-- Bouton Commenter avec focus automatique sur le champ -->
+            <!-- Ajout de x-ref pour référencer l'input du commentaire et @click pour focaliser -->
+            <button type="button" @click="$refs.commentInput{{ $post->id_pub }}.focus()"
+                    class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition duration-200">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M8 10h8M8 14h6M4 18v-8a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v8l-4-2H8l-4 2Z"/>
                 </svg>
@@ -119,35 +132,70 @@
             </button>
         </div>
 
-        <!-- Commentaires -->
+        <!-- Commentaires avec options de suppression/modification pour les miens -->
         <div class="space-y-4">
             @forelse($post->commentaires as $commentaire)
             <div class="flex items-start gap-3">
                 <img src="{{ $commentaire->user->avatar_url }}"
-                    class="w-10 h-10 rounded-full object-cover border-2 border-gray-200">
-                <div class="bg-gray-100 rounded-lg p-3 flex-1">
-                    <a href="{{ route('friends.show', $commentaire->user->id) }}"
-                        class="font-semibold text-gray-900 hover:text-blue-600">{{ $commentaire->user->name }}</a>
-                    <p class="text-gray-800 text-sm">{{ $commentaire->content }}</p>
-                    <span class="text-xs text-gray-500">{{ $commentaire->created_at->diffForHumans() }}</span>
+                     class="w-10 h-10 rounded-full object-cover border-2 border-gray-200">
+                <div class="bg-gray-100 rounded-lg p-3 flex-1 flex items-start justify-between">
+                    <div>
+                        <a href="{{ route('friends.show', $commentaire->user->id) }}"
+                           class="font-semibold text-gray-900 hover:text-blue-600">{{ $commentaire->user->name }}</a>
+                        <p class="text-gray-800 text-sm">{{ $commentaire->content }}</p>
+                        <span class="text-xs text-gray-500">{{ $commentaire->created_at->diffForHumans() }}</span>
+                    </div>
+                    <!-- Menu déroulant pour mes commentaires dans mes posts ou ceux de mes amis -->
+                    @if ($commentaire->user_id === Auth::id() && (Auth::user()->isFriendWith($post->user_id) || $post->user_id === Auth::id()))
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                            </svg>
+                        </button>
+                        <div x-show="open" @click.away="open = false"
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-10 border border-gray-100">
+                            <!-- Icône crayon pour modifier le commentaire -->
+                            <a href=""
+                               class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Modifier
+                            </a>
+                            <!-- Icône poubelle pour supprimer le commentaire -->
+                            <form action="" method="POST" onsubmit="return confirm('Voulez-vous vraiment supprimer ce commentaire ?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a1 1 0 011 1v1H9V4a1 1 0 011-1zm-5 4h14"></path>
+                                    </svg>
+                                    Supprimer
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
             @empty
             <p class="text-gray-500 text-sm">Aucun commentaire pour le moment.</p>
             @endforelse
 
-            <!-- Formulaire de commentaire -->
+            <!-- Formulaire de commentaire avec référence pour focus -->
             <form action="{{ route('posts.comment', $post) }}" method="POST" class="flex items-start gap-3 mt-4">
                 @csrf
                 <img src="{{ Auth::user()->avatar_url }}"
                     class="w-10 h-10 rounded-full object-cover border-2 border-gray-200">
                 <div class="flex-1">
-                    <input type="text" name="content"
-                            class="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder-gray-400"
-                            placeholder="Écrire un commentaire...">
+                    <!-- Ajout de x-ref pour permettre le focus automatique -->
+                    <input type="text" name="content" x-ref="commentInput{{ $post->id_pub }}"
+                           class="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none placeholder-gray-400"
+                           placeholder="Écrire un commentaire...">
                     @error('content')
                         <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @endforelse
+                    @enderror
                 </div>
                 <button type="submit" class="text-blue-600 hover:text-blue-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

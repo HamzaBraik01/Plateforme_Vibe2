@@ -18,8 +18,8 @@
     <div class="mb-8">
         <form method="GET" class="flex items-center gap-3">
             <input type="text" name="search" value="{{ $search }}"
-                   class="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm placeholder-gray-400"
-                   placeholder="Rechercher des amis par nom, email ou pseudo...">
+                    class="w-full p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm placeholder-gray-400"
+                    placeholder="Rechercher des amis par nom, email ou pseudo...">
             <button type="submit"
                     class="bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transition duration-200 shadow-md">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -38,10 +38,10 @@
             <div class="flex items-center justify-between py-4 border-b last:border-b-0">
                 <div class="flex items-center gap-4">
                     <img src="{{ $request->sender->avatar_url }}"
-                         class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
+                        class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                     <div>
                         <a href="{{ route('friends.show', $request->sender->id) }}"
-                           class="font-semibold text-gray-900 hover:text-blue-600">{{ $request->sender->name }}</a>
+                            class="font-semibold text-gray-900 hover:text-blue-600">{{ $request->sender->name }}</a>
                         <div class="text-sm text-gray-600">@ {{ $request->sender->pseudo }}</div>
                         @if ($request->sender->mutualFriendsCount() > 0)
                             <div class="text-xs text-gray-500">{{ $request->sender->mutualFriendsCount() }} ami(s) en commun</div>
@@ -76,7 +76,7 @@
             <div class="flex items-center justify-between py-4 border-b last:border-b-0">
                 <div class="flex items-center gap-4">
                     <img src="{{ $friend->avatar_url }}"
-                         class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
+                        class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                     <div>
                         <a href="{{ route('friends.show', $friend->id) }}"
                            class="font-semibold text-gray-900 hover:text-blue-600">{{ $friend->name }}</a>

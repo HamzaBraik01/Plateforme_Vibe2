@@ -13,7 +13,15 @@ class PostController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+        // Récupérer les IDs des amis acceptés
+        $friendIds = $user->friends()->pluck('users.id')->toArray();
+        // Ajouter l'ID de l'utilisateur connecté pour inclure ses propres posts
+        $friendIds[] = $user->id;
+
+        // Récupérer les posts des amis acceptés et de l'utilisateur, avec leurs relations
         $posts = Post::with('user', 'commentaires.user', 'likes')
+            ->whereIn('user_id', $friendIds) // Filtrer pour inclure seulement les amis et soi-même
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -43,6 +51,7 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
+        // Vérifier que l'utilisateur est l'auteur du post
         if ($post->user_id !== Auth::id()) {
             return redirect()->route('posts.index')->with('error', 'Vous ne pouvez pas modifier cette publication.');
         }
@@ -52,6 +61,7 @@ class PostController extends Controller
 
     public function update(Request $request, Post $post)
     {
+        // Vérifier que l'utilisateur est l'auteur du post
         if ($post->user_id !== Auth::id()) {
             return redirect()->route('posts.index')->with('error', 'Vous ne pouvez pas modifier cette publication.');
         }
@@ -78,6 +88,7 @@ class PostController extends Controller
 
     public function destroy(Post $post)
     {
+        // Vérifier que l'utilisateur est l'auteur du post
         if ($post->user_id !== Auth::id()) {
             return redirect()->route('posts.index')->with('error', 'Vous ne pouvez pas supprimer cette publication.');
         }
@@ -110,10 +121,12 @@ class PostController extends Controller
 
     public function comment(Request $request, Post $post)
     {
+        // Valider le contenu du commentaire
         $request->validate([
             'content' => 'required|string|max:500',
         ]);
 
+        // Créer un nouveau commentaire
         Commentaire::create([
             'content' => $request->content,
             'user_id' => Auth::id(),
@@ -121,5 +134,53 @@ class PostController extends Controller
         ]);
 
         return redirect()->route('posts.index')->with('success', 'Commentaire ajouté avec succès !');
+    }
+
+    // Nouvelle méthode pour supprimer un commentaire
+    public function deleteComment(Commentaire $comment)
+    {
+        // Vérifier que le commentaire appartient à l'utilisateur connecté
+        if ($comment->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Vous ne pouvez pas supprimer ce commentaire.');
+        }
+
+        // Vérifier que le post appartient à l'utilisateur ou à un ami accepté
+        $friendIds = Auth::user()->friends()->pluck('users.id')->toArray();
+        $friendIds[] = Auth::id(); // Inclure l'utilisateur connecté
+        if (!in_array($comment->post->user_id, $friendIds)) {
+            return redirect()->back()->with('error', 'Vous ne pouvez pas supprimer ce commentaire dans cette publication.');
+        }
+
+        // Supprimer le commentaire
+        $comment->delete();
+
+        return redirect()->back()->with('success', 'Commentaire supprimé avec succès !');
+    }
+
+    // Nouvelle méthode pour modifier un commentaire
+    public function updateComment(Request $request, Commentaire $comment)
+    {
+        // Vérifier que le commentaire appartient à l'utilisateur connecté
+        if ($comment->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Vous ne pouvez pas modifier ce commentaire.');
+        }
+
+        // Vérifier que le post appartient à l'utilisateur ou à un ami accepté
+        $friendIds = Auth::user()->friends()->pluck('users.id')->toArray();
+        $friendIds[] = Auth::id(); // Inclure l'utilisateur connecté
+        if (!in_array($comment->post->user_id, $friendIds)) {
+            return redirect()->back()->with('error', 'Vous ne pouvez pas modifier ce commentaire dans cette publication.');
+        }
+
+        // Valider le contenu modifié
+        $request->validate([
+            'content' => 'required|string|max:500',
+        ]);
+
+        // Mettre à jour le commentaire
+        $comment->content = $request->content;
+        $comment->save();
+
+        return redirect()->back()->with('success', 'Commentaire modifié avec succès !');
     }
 }
