@@ -13,15 +13,46 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
         @csrf
         @method('patch')
+
+        <div>
+            <x-input-label for="avatar" :value="__('Avatar')" />
+
+            <!-- Aperçu de l'avatar -->
+            @if ($user->avatar)
+                <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" class="w-20 h-20 rounded-full">
+            @else
+                <img src="{{ asset('images/default-avatar.png') }}" alt="Avatar" class="w-20 h-20 rounded-full">
+            @endif
+
+            <!-- Input pour uploader une nouvelle image -->
+            <input id="avatar" name="avatar" type="file" class="mt-2 block w-full" accept="image/*">
+
+            <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
+        </div>
+
 
         <div>
             <x-input-label for="name" :value="__('Name')" />
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
+
+        <div>
+            <x-input-label for="pseudo" :value="__('Pseudo')" />
+            <x-text-input id="pseudo" name="pseudo" type="text" class="mt-1 block w-full" :value="old('pseudo', $user->pseudo)" required />
+            <x-input-error class="mt-2" :messages="$errors->get('pseudo')" />
+        </div>
+
+        <!-- Bio Field -->
+        <div>
+            <x-input-label for="bio" :value="__('Bio')" />
+            <textarea id="bio" name="bio" class="mt-1 block w-full">{{ old('bio', $user->bio) }}</textarea>
+            <x-input-error class="mt-2" :messages="$errors->get('bio')" />
+        </div>
+
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
